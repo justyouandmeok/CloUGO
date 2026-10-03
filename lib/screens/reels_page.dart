@@ -20,7 +20,7 @@ class _ReelsPageState extends State<ReelsPage> {
       final list = List<Map<String, dynamic>>.from(r);
       final i = widget.startId == null ? 0 : list.indexWhere((e) => e['id'] == widget.startId);
       if (mounted) setState(() { items = list; index = i < 0 ? 0 : i; });
-    }).catchError((e) {});
+    }).catchError((_) {});
   }
 
   @override
@@ -40,10 +40,7 @@ class _ReelsPageState extends State<ReelsPage> {
           final url = '${item['media_url'] ?? ''}';
           return Stack(fit: StackFit.expand, children: [
             if (url.isNotEmpty) MediaView(url: url, play: i == index) else const ColoredBox(color: Color(0xFF111111)),
-            Positioned(
-              left: 14, right: 72, bottom: 18,
-              child: Text('@${item['handle'] ?? ''}\n${item['caption'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w600)),
-            ),
+            Positioned(left: 14, right: 72, bottom: 18, child: Text('@${item['handle'] ?? ''}\n${item['caption'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w600))),
             const Positioned(right: 8, bottom: 24, child: Column(children: [
               Icon(Icons.favorite_border, color: Colors.white, size: 30),
               SizedBox(height: 18),

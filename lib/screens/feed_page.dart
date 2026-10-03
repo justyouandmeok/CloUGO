@@ -34,7 +34,7 @@ class _FeedPageState extends State<FeedPage> {
     final cached = await LocalCache.feed();
     if (cached.isNotEmpty && mounted) {
       setState(() {
-        posts = cached.where((e) => e['kind'] == 'post').toList();
+        posts = cached.where((e) => e['kind'] != 'story').toList();
         stories = cached.where((e) => e['kind'] == 'story').toList();
         loading = false;
       });
@@ -43,7 +43,7 @@ class _FeedPageState extends State<FeedPage> {
       final rows = await Sb.c.from('posts').select().order('created_at', ascending: false).limit(40);
       final all = List<Map<String, dynamic>>.from(rows);
       await LocalCache.saveFeed(all);
-      posts = all.where((e) => e['kind'] == 'post').toList();
+      posts = all.where((e) => e['kind'] != 'story').toList();
       stories = all.where((e) => e['kind'] == 'story').toList();
       err = null;
     } catch (e) {
@@ -126,7 +126,9 @@ class _PostTile extends StatelessWidget {
         aspectRatio: 1,
         child: url == null
             ? Container(color: const Color(0xFF161616), alignment: Alignment.center, child: Text('${p['caption'] ?? ''}', textAlign: TextAlign.center))
-            : Image.network(url, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Center(child: Icon(Icons.broken_image))),
+            : (url.endsWith('.mp4') || url.endsWith('.mov'))
+                ? Container(color: const Color(0xFF111111), alignment: Alignment.center, child: const Icon(Icons.play_circle_fill, size: 64, color: Colors.white))
+                : Image.network(url, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Center(child: Icon(Icons.broken_image))),
       ),
       const Row(children: [
         IconButton(onPressed: null, icon: Icon(Icons.favorite_border, color: Colors.white)),

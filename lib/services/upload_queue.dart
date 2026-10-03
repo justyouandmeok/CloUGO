@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'sb.dart';
 
 class UploadQueue extends ChangeNotifier {
@@ -27,7 +28,7 @@ class UploadQueue extends ChangeNotifier {
       final file = File(item['local_path'] as String);
       final ext = file.path.split('.').last;
       final path = '${u.id}/${item['id']}.$ext';
-      await Sb.c.storage.from('media').upload(path, file);
+      await Sb.c.storage.from('media').upload(path, file, fileOptions: const FileOptions(upsert: true));
       final url = Sb.c.storage.from('media').getPublicUrl(path);
       final profile = await Sb.c.from('profiles').select('handle').eq('id', u.id).maybeSingle();
       await Sb.c.from('posts').insert({

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class C {
-  static const bg = Color(0xFF0B0B0F);
-  static const card = Color(0xFF16161D);
-  static const line = Color(0xFF2A2A34);
-  static const text = Color(0xFFF4F4F8);
-  static const muted = Color(0xFF9A9AA8);
-  static const accent = Color(0xFF7C5CFF);
-  static const accent2 = Color(0xFF3EE0C5);
+  static const bg = Color(0xFF000000);
+  static const card = Color(0xFF000000);
+  static const line = Color(0xFF262626);
+  static const text = Color(0xFFFAFAFA);
+  static const muted = Color(0xFFA8A8A8);
+  static const accent = Color(0xFF0095F6);
+  static const story = [Color(0xFFFEDA75), Color(0xFFFA7E1E), Color(0xFFD62976), Color(0xFF962FBF)];
 }
 
 ThemeData clougoTheme() {
@@ -15,17 +15,25 @@ ThemeData clougoTheme() {
     useMaterial3: true,
     brightness: Brightness.dark,
     scaffoldBackgroundColor: C.bg,
-    colorScheme: const ColorScheme.dark(primary: C.accent, surface: C.card),
-    appBarTheme: const AppBarTheme(backgroundColor: C.bg, foregroundColor: C.text, elevation: 0),
+    fontFamily: 'Roboto',
+    colorScheme: const ColorScheme.dark(primary: C.accent, surface: C.bg),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: C.bg,
+      foregroundColor: C.text,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      titleTextStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: C.text, letterSpacing: -0.4),
+    ),
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: C.card,
-      indicatorColor: C.accent.withValues(alpha: 0.25),
-      labelTextStyle: WidgetStateProperty.all(const TextStyle(fontSize: 11)),
+      backgroundColor: C.bg,
+      height: 56,
+      indicatorColor: Colors.transparent,
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+      iconTheme: WidgetStateProperty.resolveWith((s) => IconThemeData(
+        color: s.contains(WidgetState.selected) ? Colors.white : Colors.white,
+        size: 26,
+      )),
     ),
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: C.card,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
-    ),
+    dividerColor: C.line,
   );
 }

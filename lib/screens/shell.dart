@@ -19,18 +19,25 @@ class _ShellState extends State<Shell> {
     const pages = [FeedPage(), ExplorePage(), MessagesPage(), ProfilePage()];
     return Scaffold(
       body: IndexedStack(index: i, children: pages),
-      floatingActionButton: i == 0
-          ? FloatingActionButton(backgroundColor: C.accent, onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePage())), child: const Icon(Icons.add))
-          : null,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: i,
-        onDestinationSelected: (v) => setState(() => i = v),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Inicio'),
-          NavigationDestination(icon: Icon(Icons.search), label: 'Explorar'),
-          NavigationDestination(icon: Icon(Icons.send_outlined), selectedIcon: Icon(Icons.send), label: 'Mensajes'),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Perfil'),
-        ],
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(border: Border(top: BorderSide(color: C.line, width: 0.4))),
+        child: NavigationBar(
+          selectedIndex: i,
+          onDestinationSelected: (v) {
+            if (v == 2) {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePage()));
+              return;
+            }
+            setState(() => i = v > 2 ? v - 1 : v);
+          },
+          destinations: const [
+            NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Inicio'),
+            NavigationDestination(icon: Icon(Icons.search), label: 'Buscar'),
+            NavigationDestination(icon: Icon(Icons.add_box_outlined), label: 'Crear'),
+            NavigationDestination(icon: Icon(Icons.send_outlined), selectedIcon: Icon(Icons.send), label: 'Mensajes'),
+            NavigationDestination(icon: Icon(Icons.account_circle_outlined), selectedIcon: Icon(Icons.account_circle), label: 'Perfil'),
+          ],
+        ),
       ),
     );
   }

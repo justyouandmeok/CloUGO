@@ -5,22 +5,23 @@ class ExplorePage extends StatelessWidget {
   const ExplorePage({super.key});
   @override
   Widget build(BuildContext context) {
-    const tags = ['nube', 'arte', 'música', 'ciudad', 'fotos', 'amigos'];
     return Scaffold(
-      appBar: AppBar(title: const Text('Explorar')),
-      body: Column(children: [
-        const Padding(padding: EdgeInsets.all(12), child: TextField(decoration: InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'Buscar gente o temas'))),
-        Expanded(child: GridView.builder(
-          padding: const EdgeInsets.all(8),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisSpacing: 4, crossAxisSpacing: 4),
-          itemCount: 18,
-          itemBuilder: (_, i) => Container(
-            color: C.card,
-            alignment: Alignment.center,
-            child: Text('#${tags[i % tags.length]}', style: const TextStyle(color: C.accent2, fontSize: 12)),
+      body: SafeArea(
+        child: Column(children: [
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: TextField(decoration: InputDecoration(prefixIcon: const Icon(Icons.search), hintText: 'Buscar', filled: true, fillColor: const Color(0xFF1A1A1A), border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none), isDense: true)),
           ),
-        )),
-      ]),
+          Expanded(child: GridView.builder(
+            itemCount: 24,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisSpacing: 1.5, crossAxisSpacing: 1.5),
+            itemBuilder: (_, i) {
+              final big = i % 9 == 0;
+              return Container(color: HSLColor.fromAHSL(1, (i * 28).toDouble() % 360, 0.45, 0.32).toColor(), child: big ? const Align(alignment: Alignment.topRight, child: Padding(padding: EdgeInsets.all(4), child: Icon(Icons.collections, size: 16))) : null);
+            },
+          )),
+        ]),
+      ),
     );
   }
 }

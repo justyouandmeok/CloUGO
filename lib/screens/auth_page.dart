@@ -21,37 +21,37 @@ class _AuthPageState extends State<AuthPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            const SizedBox(height: 36),
-            const Text('CloUGO', style: TextStyle(fontSize: 40, fontWeight: FontWeight.w800, color: C.accent)),
-            const Text('Tu nube social', style: TextStyle(color: C.muted)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Column(children: [
+            const Spacer(),
+            const Text('CloUGO', style: TextStyle(fontSize: 42, fontWeight: FontWeight.w800, letterSpacing: -1)),
             const SizedBox(height: 28),
-            if (reg) TextField(controller: name, decoration: const InputDecoration(labelText: 'Nombre')),
-            if (reg) const SizedBox(height: 10),
-            if (reg) TextField(controller: handle, decoration: const InputDecoration(labelText: 'Usuario')),
-            if (reg) const SizedBox(height: 10),
-            TextField(controller: email, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(labelText: 'Mail')),
-            const SizedBox(height: 10),
-            TextField(controller: pass, obscureText: true, decoration: const InputDecoration(labelText: 'Clave')),
-            if (err != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(err!, style: const TextStyle(color: Colors.redAccent))),
-            const SizedBox(height: 18),
-            FilledButton(
+            if (reg) _f(name, 'Nombre'),
+            if (reg) _f(handle, 'Usuario'),
+            _f(email, 'Correo'),
+            _f(pass, 'Contraseña', obscure: true),
+            if (err != null) Text(err!, style: const TextStyle(color: Colors.redAccent)),
+            const SizedBox(height: 8),
+            SizedBox(width: double.infinity, child: FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: C.accent, minimumSize: const Size.fromHeight(44)),
               onPressed: () {
                 final s = context.read<AppState>();
-                setState(() {
-                  err = reg
-                      ? s.register(name.text, email.text, pass.text, handle.text)
-                      : s.login(email.text, pass.text);
-                });
+                setState(() => err = reg ? s.register(name.text, email.text, pass.text, handle.text) : s.login(email.text, pass.text));
               },
-              child: Text(reg ? 'Crear cuenta' : 'Entrar'),
-            ),
-            TextButton(onPressed: () => setState(() { reg = !reg; err = null; }), child: Text(reg ? 'Ya tengo cuenta' : 'Crear cuenta')),
-          ],
+              child: Text(reg ? 'Registrarte' : 'Iniciar sesión'),
+            )),
+            const Spacer(),
+            TextButton(onPressed: () => setState(() { reg = !reg; err = null; }), child: Text(reg ? '¿Ya tenés cuenta? Iniciá sesión' : '¿No tenés cuenta? Registrate', style: const TextStyle(color: C.accent))),
+            const SizedBox(height: 12),
+          ]),
         ),
       ),
     );
   }
+
+  Widget _f(TextEditingController c, String h, {bool obscure = false}) => Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: TextField(controller: c, obscureText: obscure, decoration: InputDecoration(hintText: h, filled: true, fillColor: const Color(0xFF121212), border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: C.line)))),
+  );
 }

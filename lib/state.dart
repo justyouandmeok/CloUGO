@@ -1,95 +1,100 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserAcc {
-  final String user;
-  final String name;
-  final String pass;
-  final String bio;
-  UserAcc({required this.user, required this.name, required this.pass, this.bio = ''});
-  Map<String, dynamic> toJson() => {'user': user, 'name': name, 'pass': pass, 'bio': bio};
-  factory UserAcc.fromJson(Map<String, dynamic> j) => UserAcc(user: j['user'], name: j['name'], pass: j['pass'], bio: j['bio'] ?? '');
+  String email;
+  String password;
+  String name;
+  String handle;
+  String bio;
+  UserAcc({required this.email, required this.password, required this.name, required this.handle, this.bio = ''});
+  Map<String, dynamic> toJson() => {'email': email, 'password': password, 'name': name, 'handle': handle, 'bio': bio};
+  factory UserAcc.fromJson(Map<String, dynamic> j) => UserAcc(email: j['email'], password: j['password'], name: j['name'], handle: j['handle'], bio: j['bio'] ?? '');
 }
 
 class Post {
   final String id;
-  final String user;
-  final String text;
-  final int hue;
+  final String author;
+  final String handle;
+  String text;
   int likes;
+  bool liked;
   final List<String> comments;
-  Post({required this.id, required this.user, required this.text, required this.hue, this.likes = 0, List<String>? comments}) : comments = comments ?? [];
-  Map<String, dynamic> toJson() => {'id': id, 'user': user, 'text': text, 'hue': hue, 'likes': likes, 'comments': comments};
+  final DateTime at;
+  Post({required this.id, required this.author, required this.handle, required this.text, this.likes = 0, this.liked = false, List<String>? comments, DateTime? at})
+      : comments = comments ?? [],
+        at = at ?? DateTime.now();
+  Map<String, dynamic> toJson() => {
+        'id': id, 'author': author, 'handle': handle, 'text': text, 'likes': likes, 'liked': liked, 'comments': comments, 'at': at.toIso8601String()
+      };
   factory Post.fromJson(Map<String, dynamic> j) => Post(
-        id: j['id'],
-        user: j['user'],
-        text: j['text'],
-        hue: j['hue'],
-        likes: j['likes'] ?? 0,
-        comments: List<String>.from(j['comments'] ?? []),
-      );
+        id: j['id'], author: j['author'], handle: j['handle'], text: j['text'], likes: j['likes'] ?? 0, liked: j['liked'] ?? false,
+        comments: List<String>.from(j['comments'] ?? []), at: DateTime.tryParse(j['at'] ?? '') ?? DateTime.now());
+}
+
+class ChatMsg {
+  final String from;
+  final String text;
+  final DateTime at;
+  ChatMsg(this.from, this.text, this.at);
+  Map<String, dynamic> toJson() => {'from': from, 'text': text, 'at': at.toIso8601String()};
+  factory ChatMsg.fromJson(Map<String, dynamic> j) => ChatMsg(j['from'], j['text'], DateTime.parse(j['at']));
 }
 
 class AppState extends ChangeNotifier {
-  UserAcc? me;
   List<UserAcc> users = [];
+  UserAcc? me;
   List<Post> posts = [];
-  Set<String> liked = {};
-  Set<String> following = {};
+  Map<String, List<ChatMsg>> chats = {};
+  final Set<String> following = {};
 
   Future<void> load() async {
     final p = await SharedPreferences.getInstance();
-    users = (p.getStringList('users') ?? []).map((s) => UserAcc.fromJson(jsonDecode(s))).toList();
-    posts = (p.getStringList('posts') ?? []).map((s) => Post.fromJson(jsonDecode(s))).toList();
-    liked = (p.getStringList('liked') ?? []).toSet();
-    following = (p.getStringList('following') ?? []).toSet();
-    final cur = p.getString('me');
-    if (cur != null) {
-      me = users.cast<UserAcc?>().firstWhere((u) => u!.user == cur, orElse: () => null);
-    }
+    users = (jsonDecode(p.getString('cu_users') ?? '[]') as List).map((e) => UserAcc.fromJson(e)).toList();
+    posts = (jsonDecode(p.getString('cu_posts') ?? '[]') as List).map((e) => Post.fromJson(e)).toList();
+    final rawChats = jsonDecode(p.getString('cu_chats') ?? '{}') as Map<String, dynamic>;
+    chats = rawChats.map((k, v) => MapEntry(k, (v as List).map((e) => ChatMsg.fromJson(e)).toList()));
+    following.addAll(p.getStringList('cu_follow') ?? []);
+    final mail = p.getString('cu_me');
+    if (mail != null) me = users.cast<UserAcc?>().firstWhere((u) => u!.email == mail, orElse: () => null);
     if (posts.isEmpty) {
       posts = [
-        Post(id: '1', user: 'nube', text: 'Primer día en CloUGO. El cielo se ve distinto desde acá.', hue: 210, likes: 24, comments: ['bienvenido']),
-        Post(id: '2', user: 'luma', text: 'Compartí una foto del atardecer. ¿Quién más está en Buenos Aires?', hue: 28, likes: 41),
-        Post(id: '3', user: 'rio', text: 'Idea: una red donde el feed no premie solo a los que ya tienen seguidores.', hue: 160, likes: 18, comments: ['eso', 'dale']),
+        Post(id: '1', author: 'CloUGO', handle: 'clougo', text: 'Bienvenido a CloUGO. Publicá, seguí y chateá.', likes: 12),
+        Post(id: '2', author: 'Nube', handle: 'nube', text: 'Primera nube en la red.', likes: 4),
       ];
-      users.addAll([
-        UserAcc(user: 'nube', name: 'Nube', pass: '', bio: 'Cielo y código'),
-        UserAcc(user: 'luma', name: 'Luma', pass: '', bio: 'Atardeceres'),
-        UserAcc(user: 'rio', name: 'Río', pass: '', bio: 'Ideas sueltas'),
-      ]);
     }
     notifyListeners();
   }
 
   Future<void> _save() async {
     final p = await SharedPreferences.getInstance();
-    await p.setStringList('users', users.map((u) => jsonEncode(u.toJson())).toList());
-    await p.setStringList('posts', posts.map((e) => jsonEncode(e.toJson())).toList());
-    await p.setStringList('liked', liked.toList());
-    await p.setStringList('following', following.toList());
-    if (me != null) await p.setString('me', me!.user);
+    await p.setString('cu_users', jsonEncode(users.map((e) => e.toJson()).toList()));
+    await p.setString('cu_posts', jsonEncode(posts.map((e) => e.toJson()).toList()));
+    await p.setString('cu_chats', jsonEncode(chats.map((k, v) => MapEntry(k, v.map((e) => e.toJson()).toList()))));
+    await p.setStringList('cu_follow', following.toList());
+    if (me != null) await p.setString('cu_me', me!.email);
   }
 
-  String? register(String user, String name, String pass) {
-    user = user.trim().toLowerCase().replaceAll('@', '');
-    if (user.length < 3) return 'Usuario muy corto';
-    if (users.any((u) => u.user == user && u.pass.isNotEmpty)) return 'Ese usuario ya existe';
-    users.removeWhere((u) => u.user == user);
-    final acc = UserAcc(user: user, name: name.trim().isEmpty ? user : name.trim(), pass: pass, bio: 'Nuevo en CloUGO');
-    users.insert(0, acc);
-    me = acc;
+  String? register(String name, String email, String pass, String handle) {
+    email = email.trim().toLowerCase();
+    handle = handle.trim().toLowerCase().replaceAll('@', '');
+    if (name.isEmpty || email.isEmpty || pass.length < 4 || handle.isEmpty) return 'Completá todos los campos (clave de 4+)';
+    if (users.any((u) => u.email == email)) return 'Ese mail ya existe';
+    if (users.any((u) => u.handle == handle)) return 'Ese usuario ya existe';
+    final u = UserAcc(email: email, password: pass, name: name, handle: handle);
+    users.add(u);
+    me = u;
     _save();
     notifyListeners();
     return null;
   }
 
-  String? login(String user, String pass) {
-    user = user.trim().toLowerCase().replaceAll('@', '');
-    final acc = users.cast<UserAcc?>().firstWhere((u) => u!.user == user && u.pass == pass && u.pass.isNotEmpty, orElse: () => null);
-    if (acc == null) return 'Usuario o contraseña incorrectos';
-    me = acc;
+  String? login(String email, String pass) {
+    email = email.trim().toLowerCase();
+    final u = users.cast<UserAcc?>().firstWhere((x) => x!.email == email, orElse: () => null);
+    if (u == null || u.password != pass) return 'Mail o clave incorrectos';
+    me = u;
     _save();
     notifyListeners();
     return null;
@@ -98,51 +103,53 @@ class AppState extends ChangeNotifier {
   Future<void> logout() async {
     me = null;
     final p = await SharedPreferences.getInstance();
-    await p.remove('me');
+    await p.remove('cu_me');
     notifyListeners();
   }
 
   void publish(String text) {
     if (me == null || text.trim().isEmpty) return;
-    posts.insert(0, Post(id: DateTime.now().millisecondsSinceEpoch.toString(), user: me!.user, text: text.trim(), hue: text.hashCode % 360));
+    posts.insert(0, Post(id: DateTime.now().millisecondsSinceEpoch.toString(), author: me!.name, handle: me!.handle, text: text.trim()));
     _save();
     notifyListeners();
   }
 
   void toggleLike(Post post) {
-    if (liked.contains(post.id)) {
-      liked.remove(post.id);
-      post.likes = (post.likes - 1).clamp(0, 1 << 30);
-    } else {
-      liked.add(post.id);
-      post.likes++;
-    }
+    post.liked = !post.liked;
+    post.likes += post.liked ? 1 : -1;
     _save();
     notifyListeners();
   }
 
   void comment(Post post, String text) {
     if (text.trim().isEmpty || me == null) return;
-    post.comments.add('${me!.user}: ${text.trim()}');
+    post.comments.add('${me!.handle}: ${text.trim()}');
     _save();
     notifyListeners();
   }
 
-  void toggleFollow(String user) {
-    if (following.contains(user)) {
-      following.remove(user);
+  void toggleFollow(String handle) {
+    if (following.contains(handle)) {
+      following.remove(handle);
     } else {
-      following.add(user);
+      following.add(handle);
     }
     _save();
     notifyListeners();
   }
 
-  void updateMe({String? name, String? bio}) {
+  void send(String handle, String text) {
+    if (me == null || text.trim().isEmpty) return;
+    chats.putIfAbsent(handle, () => []);
+    chats[handle]!.add(ChatMsg(me!.handle, text.trim(), DateTime.now()));
+    _save();
+    notifyListeners();
+  }
+
+  void saveProfile(String name, String bio) {
     if (me == null) return;
-    final n = UserAcc(user: me!.user, name: name ?? me!.name, pass: me!.pass, bio: bio ?? me!.bio);
-    users = users.map((u) => u.user == n.user ? n : u).toList();
-    me = n;
+    me!.name = name.trim().isEmpty ? me!.name : name.trim();
+    me!.bio = bio.trim();
     _save();
     notifyListeners();
   }

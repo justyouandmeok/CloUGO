@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../services/cache.dart';
 import '../services/sb.dart';
+import '../services/upload_queue.dart';
 import '../theme.dart';
 import 'messages_page.dart';
 import 'story_page.dart';
@@ -19,18 +21,33 @@ class _FeedPageState extends State<FeedPage> {
   @override
   void initState() {
     super.initState();
+    uploadQueue.addListener(_onQueue);
     load();
   }
 
+  void _onQueue() { if (mounted) setState(() {}); }
+
+  @override
+  void dispose() { uploadQueue.removeListener(_onQueue); super.dispose(); }
+
   Future<void> load() async {
-    setState(() { loading = true; err = null; });
+    final cached = await LocalCache.feed();
+    if (cached.isNotEmpty && mounted) {
+      setState(() {
+        posts = cached.where((e) => e['kind'] == 'post').toList();
+        stories = cached.where((e) => e['kind'] == 'story').toList();
+        loading = false;
+      });
+    }
     try {
       final rows = await Sb.c.from('posts').select().order('created_at', ascending: false).limit(40);
       final all = List<Map<String, dynamic>>.from(rows);
+      await LocalCache.saveFeed(all);
       posts = all.where((e) => e['kind'] == 'post').toList();
       stories = all.where((e) => e['kind'] == 'story').toList();
+      err = null;
     } catch (e) {
-      err = '$e';
+      if (posts.isEmpty) err = '$e';
     }
     if (mounted) setState(() => loading = false);
   }
@@ -84,6 +101,7 @@ class _FeedPageState extends State<FeedPage> {
             if (loading) const Padding(padding: EdgeInsets.all(24), child: Center(child: CircularProgressIndicator())),
             if (err != null) Padding(padding: const EdgeInsets.all(16), child: Text(err!, style: const TextStyle(color: Colors.redAccent))),
             if (!loading && posts.isEmpty) const Padding(padding: EdgeInsets.all(24), child: Text('Todavía no hay publicaciones. Tocá + para subir.', style: TextStyle(color: C.muted))),
+            for (final p in uploadQueue.pending.where((e) => e['kind']=='post')) _PendingTile(p),
             for (final p in posts) _PostTile(p),
           ],
         ),
@@ -125,5 +143,21 @@ class _PostTile extends StatelessWidget {
         ])),
       ),
     ]);
+  }
+}
+
+
+class _PendingTile extends StatelessWidget {
+  const _PendingTile(this.p);
+  final Map<String, dynamic> p;
+  @override
+  Widget build(BuildContext context) {
+    final failed = p['status'] == 'error';
+    return ListTile(
+      leading: const Icon(Icons.cloud_upload_outlined),
+      title: Text(failed ? 'No se pudo publicar' : 'Subiendo...'),
+      subtitle: Text('${p['caption'] ?? ''}'),
+      trailing: failed ? TextButton(onPressed: () => uploadQueue.retry('${p['id']}'), child: const Text('Reintentar')) : const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+    );
   }
 }

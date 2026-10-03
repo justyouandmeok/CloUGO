@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/sb.dart';
+import '../services/upload_queue.dart';
 import '../theme.dart';
 
 class CreatePage extends StatefulWidget {
@@ -32,26 +33,16 @@ class _CreatePageState extends State<CreatePage> {
       setState(() => err = 'Elegí una foto o un video');
       return;
     }
-    setState(() { busy = true; err = null; });
-    try {
-      final ext = file!.path.split('.').last;
-      final path = '${u.id}/${DateTime.now().millisecondsSinceEpoch}.$ext';
-      await Sb.c.storage.from('media').upload(path, File(file!.path));
-      final url = Sb.c.storage.from('media').getPublicUrl(path);
-      final profile = await Sb.c.from('profiles').select('handle').eq('id', u.id).maybeSingle();
-      await Sb.c.from('posts').insert({
-        'user_id': u.id,
-        'handle': profile?['handle'] ?? 'user',
-        'kind': kind,
-        'caption': caption.text.trim(),
-        'media_url': url,
-      });
-      if (mounted) Navigator.pop(context, true);
-    } catch (e) {
-      setState(() => err = 'No se pudo publicar. Revisá la conexión e intentá de nuevo.');
-    } finally {
-      if (mounted) setState(() => busy = false);
-    }
+    final item = {
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'kind': kind,
+      'caption': caption.text.trim(),
+      'local_path': file!.path,
+      'handle': 'vos',
+      'status': 'uploading',
+    };
+    uploadQueue.enqueue(item);
+    if (mounted) Navigator.pop(context, true);
   }
 
   @override

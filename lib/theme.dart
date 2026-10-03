@@ -7,6 +7,8 @@ class C {
   static const text = Color(0xFFF5F5F5);
   static const muted = Color(0xFFA8A8A8);
   static const blue = Color(0xFF0095F6);
+  static const accent = blue;
+  static const card = Color(0xFF121212);
   static const story = [Color(0xFFFEDA75), Color(0xFFFA7E1E), Color(0xFFD62976), Color(0xFF962FBF), Color(0xFF4F5BD5)];
 }
 

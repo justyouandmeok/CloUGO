@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'create_page.dart';
 import 'explore_page.dart';
 import 'feed_page.dart';
 import 'messages_page.dart';
 import 'profile_page.dart';
+import 'reels_page.dart';
 import '../theme.dart';
 
 class Shell extends StatefulWidget {
@@ -14,32 +16,33 @@ class Shell extends StatefulWidget {
 
 class _ShellState extends State<Shell> {
   int i = 0;
+  static const icons = ['home', 'reels', 'messages', 'search', 'profile'];
+
   @override
   Widget build(BuildContext context) {
-    const pages = [FeedPage(), ExplorePage(), MessagesPage(), ProfilePage()];
+    const pages = [FeedPage(), ReelsPage(), MessagesPage(), ExplorePage(), ProfilePage()];
     return Scaffold(
       body: IndexedStack(index: i, children: pages),
+      floatingActionButton: i == 0
+          ? FloatingActionButton(backgroundColor: C.blue, onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePage())), child: const Icon(Icons.add))
+          : null,
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(border: Border(top: BorderSide(color: C.line, width: 0.5))),
-        child: NavigationBar(
-          height: 52,
-          backgroundColor: C.bg,
-          indicatorColor: Colors.transparent,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-          selectedIndex: i >= 2 ? i + 1 : i,
-          onDestinationSelected: (v) {
-            if (v == 2) {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePage()));
-              return;
-            }
-            setState(() => i = v > 2 ? v - 1 : v);
-          },
-          destinations: const [
-            NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Inicio'),
-            NavigationDestination(icon: Icon(Icons.search), selectedIcon: Icon(Icons.search, weight: 700), label: 'Buscar'),
-            NavigationDestination(icon: Icon(Icons.add_box_outlined), selectedIcon: Icon(Icons.add_box), label: 'Crear'),
-            NavigationDestination(icon: Icon(Icons.send_outlined), selectedIcon: Icon(Icons.send), label: 'Mensajes'),
-            NavigationDestination(icon: Icon(Icons.account_circle_outlined), selectedIcon: Icon(Icons.account_circle), label: 'Perfil'),
+        decoration: const BoxDecoration(border: Border(top: BorderSide(color: C.line, width: 0.4))),
+        padding: const EdgeInsets.only(top: 8, bottom: 6),
+        color: Colors.black,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            for (var n = 0; n < icons.length; n++)
+              GestureDetector(
+                onTap: () => setState(() => i = n),
+                child: SvgPicture.asset(
+                  'assets/nav/${icons[n]}.svg',
+                  width: 26,
+                  height: 26,
+                  colorFilter: ColorFilter.mode(i == n ? Colors.white : const Color(0xFF8E8E8E), BlendMode.srcIn),
+                ),
+              ),
           ],
         ),
       ),

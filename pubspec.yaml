@@ -1,7 +1,7 @@
 name: clougo
 description: CloUGO — red social.
 publish_to: "none"
-version: 0.6.0+8
+version: 0.7.0+9
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -13,9 +13,13 @@ dependencies:
   provider: ^6.1.2
   supabase_flutter: ^2.8.0
   image_picker: ^1.1.2
+  flutter_svg: ^2.0.17
 
 dev_dependencies:
   flutter_lints: ^4.0.0
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/nav/

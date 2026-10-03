@@ -45,7 +45,7 @@ class Gate extends StatelessWidget {
   const Gate({super.key});
   @override
   Widget build(BuildContext context) {
-    final me = context.watch<AppState>().me;
-    return me == null ? const AuthPage() : const Shell();
+    final session = Sb.c.auth.currentSession;
+    return session == null ? const AuthPage() : const Shell();
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../services/sb.dart';
 import '../state.dart';
 import '../theme.dart';
 
@@ -35,9 +36,22 @@ class _AuthPageState extends State<AuthPage> {
             const SizedBox(height: 8),
             SizedBox(width: double.infinity, child: FilledButton(
               style: FilledButton.styleFrom(backgroundColor: C.accent, minimumSize: const Size.fromHeight(44)),
-              onPressed: () {
-                final s = context.read<AppState>();
-                setState(() => err = reg ? s.register(name.text, email.text, pass.text, handle.text) : s.login(email.text, pass.text));
+              onPressed: () async {
+                setState(() => err = null);
+                try {
+                  if (reg) {
+                    final res = await Sb.c.auth.signUp(email: email.text.trim(), password: pass.text);
+                    final id = res.user?.id;
+                    if (id != null) {
+                      await Sb.c.from('profiles').upsert({'id': id, 'handle': handle.text.trim().toLowerCase(), 'name': name.text.trim()});
+                    }
+                  } else {
+                    await Sb.c.auth.signInWithPassword(email: email.text.trim(), password: pass.text);
+                  }
+                  if (context.mounted) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SizedBox()));
+                } catch (e) {
+                  setState(() => err = '$e');
+                }
               },
               child: Text(reg ? 'Registrarte' : 'Iniciar sesión'),
             )),

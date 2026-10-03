@@ -35,6 +35,7 @@ class _CloUGOAppState extends State<CloUGOApp> {
         debugShowCheckedModeBanner: false,
         title: 'CloUGO',
         theme: clougoTheme(),
+        builder: (context, child) => SafeArea(child: child ?? const SizedBox.shrink()),
         home: const Gate(),
       ),
     );

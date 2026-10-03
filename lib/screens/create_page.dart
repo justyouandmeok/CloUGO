@@ -25,18 +25,19 @@ class _CreatePageState extends State<CreatePage> {
   Future<void> _publish() async {
     final u = Sb.user;
     if (u == null) {
-      setState(() => err = 'Entrá con tu cuenta para publicar en la nube');
+      setState(() => err = 'Entrá con tu cuenta para publicar');
+      return;
+    }
+    if (file == null) {
+      setState(() => err = 'Elegí una foto o un video');
       return;
     }
     setState(() { busy = true; err = null; });
     try {
-      String? url;
-      if (file != null) {
-        final ext = file!.path.split('.').last;
-        final path = '${u.id}/${DateTime.now().millisecondsSinceEpoch}.$ext';
-        await Sb.c.storage.from('media').upload(path, File(file!.path));
-        url = Sb.c.storage.from('media').getPublicUrl(path);
-      }
+      final ext = file!.path.split('.').last;
+      final path = '${u.id}/${DateTime.now().millisecondsSinceEpoch}.$ext';
+      await Sb.c.storage.from('media').upload(path, File(file!.path));
+      final url = Sb.c.storage.from('media').getPublicUrl(path);
       final profile = await Sb.c.from('profiles').select('handle').eq('id', u.id).maybeSingle();
       await Sb.c.from('posts').insert({
         'user_id': u.id,
@@ -47,7 +48,7 @@ class _CreatePageState extends State<CreatePage> {
       });
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
-      setState(() => err = '$e');
+      setState(() => err = 'No se pudo publicar. Revisá la conexión e intentá de nuevo.');
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -55,36 +56,78 @@ class _CreatePageState extends State<CreatePage> {
 
   @override
   Widget build(BuildContext context) {
+    final square = kind == 'post';
     return Scaffold(
-      appBar: AppBar(title: const Text('Nueva publicación'), actions: [
-        TextButton(onPressed: busy ? null : _publish, child: busy ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Compartir')),
-      ]),
-      body: ListView(padding: const EdgeInsets.all(16), children: [
-        SegmentedButton<String>(
-          segments: const [
-            ButtonSegment(value: 'post', label: Text('Publicación')),
-            ButtonSegment(value: 'story', label: Text('Historia')),
-            ButtonSegment(value: 'reel', label: Text('Reel')),
-          ],
-          selected: {kind},
-          onSelectionChanged: (v) => setState(() => kind = v.first),
-        ),
-        const SizedBox(height: 16),
-        AspectRatio(
-          aspectRatio: kind == 'post' ? 1 : 9 / 16,
-          child: InkWell(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: Text(kind == 'post' ? 'Nueva publicación' : kind == 'story' ? 'Nueva historia' : 'Nuevo reel', style: const TextStyle(fontSize: 18)),
+        actions: [
+          TextButton(
+            onPressed: busy ? null : _publish,
+            child: busy
+                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: C.blue))
+                : const Text('Compartir', style: TextStyle(color: C.blue, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+        children: [
+          Container(
+            decoration: BoxDecoration(color: const Color(0xFF1A1A1A), borderRadius: BorderRadius.circular(12)),
+            child: Row(children: [
+              for (final item in [('post', 'Publicación'), ('story', 'Historia'), ('reel', 'Reel')])
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => kind = item.$1),
+                    child: Container(
+                      margin: const EdgeInsets.all(4),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: kind == item.$1 ? const Color(0xFF262626) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(item.$2, style: TextStyle(fontWeight: kind == item.$1 ? FontWeight.w700 : FontWeight.w500, color: kind == item.$1 ? Colors.white : C.muted)),
+                    ),
+                  ),
+                ),
+            ]),
+          ),
+          const SizedBox(height: 14),
+          GestureDetector(
             onTap: _pick,
-            child: Container(
-              color: const Color(0xFF121212),
-              alignment: Alignment.center,
-              child: file == null ? const Text('Tocá para elegir foto o video', style: TextStyle(color: C.muted)) : Text(file!.name),
+            child: AspectRatio(
+              aspectRatio: square ? 1 : 9 / 14,
+              child: Container(
+                decoration: BoxDecoration(color: const Color(0xFF121212), borderRadius: BorderRadius.circular(12), border: Border.all(color: C.line)),
+                clipBehavior: Clip.antiAlias,
+                child: file == null
+                    ? const Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                        Icon(Icons.photo_library_outlined, size: 42, color: Colors.white),
+                        SizedBox(height: 8),
+                        Text('Elegí de la galería', style: TextStyle(fontWeight: FontWeight.w600)),
+                        SizedBox(height: 4),
+                        Text('Foto o video', style: TextStyle(color: C.muted, fontSize: 13)),
+                      ])
+                    : Image.file(File(file!.path), fit: BoxFit.cover, errorBuilder: (_, __, ___) => Center(child: Text(file!.name))),
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 12),
-        TextField(controller: caption, maxLines: 3, decoration: const InputDecoration(hintText: 'Escribí un pie...')),
-        if (err != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(err!, style: const TextStyle(color: Colors.redAccent))),
-      ]),
+          const SizedBox(height: 12),
+          TextField(
+            controller: caption,
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: 'Escribí un pie de foto...',
+              filled: true,
+              fillColor: const Color(0xFF121212),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            ),
+          ),
+          if (err != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(err!, style: const TextStyle(color: Colors.redAccent))),
+        ],
+      ),
     );
   }
 }

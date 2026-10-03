@@ -20,9 +20,13 @@ class _ShellState extends State<Shell> {
     return Scaffold(
       body: IndexedStack(index: i, children: pages),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(border: Border(top: BorderSide(color: C.line, width: 0.4))),
+        decoration: const BoxDecoration(border: Border(top: BorderSide(color: C.line, width: 0.5))),
         child: NavigationBar(
-          selectedIndex: i,
+          height: 52,
+          backgroundColor: C.bg,
+          indicatorColor: Colors.transparent,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+          selectedIndex: i >= 2 ? i + 1 : i,
           onDestinationSelected: (v) {
             if (v == 2) {
               Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePage()));
@@ -32,8 +36,8 @@ class _ShellState extends State<Shell> {
           },
           destinations: const [
             NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Inicio'),
-            NavigationDestination(icon: Icon(Icons.search), label: 'Buscar'),
-            NavigationDestination(icon: Icon(Icons.add_box_outlined), label: 'Crear'),
+            NavigationDestination(icon: Icon(Icons.search), selectedIcon: Icon(Icons.search, weight: 700), label: 'Buscar'),
+            NavigationDestination(icon: Icon(Icons.add_box_outlined), selectedIcon: Icon(Icons.add_box), label: 'Crear'),
             NavigationDestination(icon: Icon(Icons.send_outlined), selectedIcon: Icon(Icons.send), label: 'Mensajes'),
             NavigationDestination(icon: Icon(Icons.account_circle_outlined), selectedIcon: Icon(Icons.account_circle), label: 'Perfil'),
           ],

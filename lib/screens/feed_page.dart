@@ -117,17 +117,29 @@ class _PostTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final url = p['media_url'] as String?;
+    final handle = '${p['handle'] ?? 'user'}';
+    final kind = '${p['kind'] ?? 'post'}';
+    final caption = '${p['caption'] ?? ''}'.trim();
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      ListTile(
-        leading: CircleAvatar(child: Text('${p['handle'] ?? '?'}'[0].toUpperCase())),
-        title: Text('${p['handle'] ?? 'user'}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-        trailing: const Icon(Icons.more_horiz),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 8, 8),
+        child: Row(children: [
+          CircleAvatar(radius: 16, backgroundColor: const Color(0xFF262626), child: Text(handle.isEmpty ? '?' : handle[0].toUpperCase(), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700))),
+          const SizedBox(width: 10),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(handle, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            Text(kind == 'reel' ? 'Reel' : 'Publicación', style: const TextStyle(color: C.muted, fontSize: 12)),
+          ])),
+          const Icon(Icons.more_horiz),
+        ]),
       ),
       AspectRatio(
-        aspectRatio: 1,
-        child: url == null
-            ? Container(color: const Color(0xFF161616), alignment: Alignment.center, child: Text('${p['caption'] ?? ''}', textAlign: TextAlign.center))
-            : MediaView(url: url, play: false),
+        aspectRatio: kind == 'reel' ? 4 / 5 : 1,
+        child: ClipRect(
+          child: url == null
+              ? Container(color: const Color(0xFF161616), alignment: Alignment.center, child: Text(caption, textAlign: TextAlign.center))
+              : MediaView(url: url, play: kind == 'reel'),
+        ),
       ),
       const Row(children: [
         IconButton(onPressed: null, icon: Icon(Icons.favorite_border, color: Colors.white)),
@@ -137,16 +149,17 @@ class _PostTile extends StatelessWidget {
         IconButton(onPressed: null, icon: Icon(Icons.bookmark_border, color: Colors.white)),
       ]),
       Padding(
-        padding: const EdgeInsets.fromLTRB(14, 0, 14, 16),
+        padding: const EdgeInsets.fromLTRB(14, 0, 14, 4),
         child: Text.rich(TextSpan(children: [
-          TextSpan(text: '${p['handle'] ?? ''} ', style: const TextStyle(fontWeight: FontWeight.w700)),
-          TextSpan(text: '${p['caption'] ?? ''}'),
+          TextSpan(text: '$handle ', style: const TextStyle(fontWeight: FontWeight.w700)),
+          TextSpan(text: caption.isEmpty ? 'Sin descripción' : caption),
         ])),
       ),
+      const Padding(padding: EdgeInsets.fromLTRB(14, 0, 14, 14), child: Text('Ver comentarios', style: TextStyle(color: C.muted, fontSize: 13))),
+      const Divider(height: 1, color: C.line),
     ]);
   }
 }
-
 
 class _PendingTile extends StatelessWidget {
   const _PendingTile(this.p);

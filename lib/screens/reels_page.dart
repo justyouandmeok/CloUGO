@@ -40,7 +40,18 @@ class _ReelsPageState extends State<ReelsPage> {
           final url = '${item['media_url'] ?? ''}';
           return Stack(fit: StackFit.expand, children: [
             if (url.isNotEmpty) MediaView(url: url, play: i == index) else const ColoredBox(color: Color(0xFF111111)),
-            Positioned(left: 14, right: 72, bottom: 18, child: Text('@${item['handle'] ?? ''}\n${item['caption'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w600))),
+            Positioned(
+              left: 14, right: 78, bottom: 24,
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Row(children: [
+                  CircleAvatar(radius: 16, child: Text('${(item['handle'] ?? '?')}'[0].toUpperCase())),
+                  const SizedBox(width: 8),
+                  Text('@${item['handle'] ?? 'user'}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                ]),
+                const SizedBox(height: 8),
+                Text('${item['caption'] ?? 'Sin descripción'}', maxLines: 3, overflow: TextOverflow.ellipsis),
+              ]),
+            ),
             const Positioned(right: 8, bottom: 24, child: Column(children: [
               Icon(Icons.favorite_border, color: Colors.white, size: 30),
               SizedBox(height: 18),

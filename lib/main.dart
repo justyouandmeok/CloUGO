@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'services/sb.dart';
 import 'package:provider/provider.dart';
 import 'screens/auth_page.dart';
 import 'screens/shell.dart';
 import 'state.dart';
 import 'theme.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(url: Sb.url, anonKey: Sb.anon);
   runApp(const CloUGOApp());
 }
 

@@ -57,7 +57,7 @@ class _FeedPageState extends State<FeedPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CloUGO'),
+        title: const Text('CloUGO', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700, letterSpacing: -0.8)),
         actions: [
           IconButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MessagesPage())), icon: const Icon(Icons.favorite_border)),
           IconButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MessagesPage())), icon: const Icon(Icons.send_outlined)),

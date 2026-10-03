@@ -28,8 +28,8 @@ class _ShellState extends State<Shell> {
           : null,
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(border: Border(top: BorderSide(color: C.line, width: 0.4))),
-        padding: const EdgeInsets.only(top: 10, bottom: 8),
-        color: Colors.black,
+        padding: const EdgeInsets.only(top: 8, bottom: 6),
+        color: const Color(0xF0000000),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [

@@ -91,7 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: mine.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 1.5, mainAxisSpacing: 1.5),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 1.5, mainAxisSpacing: 1.5, childAspectRatio: 0.8),
           itemBuilder: (_, i) => GestureDetector(
             onTap: () {
               if (mine[i]['kind'] == 'reel') {

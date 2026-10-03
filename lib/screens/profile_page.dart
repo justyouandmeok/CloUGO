@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/sb.dart';
 import '../state.dart';
 import '../theme.dart';
+import 'reels_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -91,7 +92,14 @@ class _ProfilePageState extends State<ProfilePage> {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: mine.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 1.5, mainAxisSpacing: 1.5),
-          itemBuilder: (_, i) => _thumb(mine[i]),
+          itemBuilder: (_, i) => GestureDetector(
+            onTap: () {
+              if (mine[i]['kind'] == 'reel') {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => ReelsPage(startId: mine[i]['id'])));
+              }
+            },
+            child: _thumb(mine[i]),
+          ),
         ),
       ]),
     );

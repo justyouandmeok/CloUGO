@@ -3,6 +3,7 @@ import '../services/cache.dart';
 import '../services/sb.dart';
 import '../services/upload_queue.dart';
 import '../theme.dart';
+import '../widgets/media_view.dart';
 import 'messages_page.dart';
 import 'story_page.dart';
 
@@ -126,9 +127,7 @@ class _PostTile extends StatelessWidget {
         aspectRatio: 1,
         child: url == null
             ? Container(color: const Color(0xFF161616), alignment: Alignment.center, child: Text('${p['caption'] ?? ''}', textAlign: TextAlign.center))
-            : (url.endsWith('.mp4') || url.endsWith('.mov'))
-                ? Container(color: const Color(0xFF111111), alignment: Alignment.center, child: const Icon(Icons.play_circle_fill, size: 64, color: Colors.white))
-                : Image.network(url, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Center(child: Icon(Icons.broken_image))),
+            : MediaView(url: url, play: false),
       ),
       const Row(children: [
         IconButton(onPressed: null, icon: Icon(Icons.favorite_border, color: Colors.white)),

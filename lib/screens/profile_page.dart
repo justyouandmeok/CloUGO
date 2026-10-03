@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../services/sb.dart';
 import '../state.dart';
 import '../theme.dart';
 
@@ -19,7 +20,7 @@ class ProfilePage extends StatelessWidget {
           const Icon(Icons.keyboard_arrow_down),
         ]),
         actions: [
-          IconButton(onPressed: () => context.read<AppState>().logout(), icon: const Icon(Icons.menu)),
+          IconButton(onPressed: () async { await Sb.c.auth.signOut(); if (context.mounted) Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const SizedBox()), (_) => false); }, icon: const Icon(Icons.menu)),
         ],
       ),
       body: ListView(children: [

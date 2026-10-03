@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/sb.dart';
 import '../state.dart';
 import '../theme.dart';
+import 'shell.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -48,7 +49,7 @@ class _AuthPageState extends State<AuthPage> {
                   } else {
                     await Sb.c.auth.signInWithPassword(email: email.text.trim(), password: pass.text);
                   }
-                  if (context.mounted) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SizedBox()));
+                  if (context.mounted) Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const Shell()), (_) => false);
                 } catch (e) {
                   setState(() => err = '$e');
                 }

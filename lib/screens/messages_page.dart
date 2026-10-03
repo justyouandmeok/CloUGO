@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
+import '../services/sb.dart';
 import '../theme.dart';
 
 class MessagesPage extends StatelessWidget {
@@ -10,7 +11,7 @@ class MessagesPage extends StatelessWidget {
     final s = context.watch<AppState>();
     final people = {'nube', 'arte', ...s.chats.keys};
     return Scaffold(
-      appBar: AppBar(title: const Text('justyouandmeok', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700))),
+      appBar: AppBar(title: const Text(Sb.user?.email?.split('@').first ?? 'Mensajes', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700))),
       body: ListView(children: [
         for (final h in people)
           ListTile(

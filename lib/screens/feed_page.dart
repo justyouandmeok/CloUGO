@@ -6,6 +6,7 @@ import '../theme.dart';
 import '../widgets/media_view.dart';
 import 'create_page.dart';
 import 'messages_page.dart';
+import 'notifications_page.dart';
 import 'story_page.dart';
 
 class FeedPage extends StatefulWidget {
@@ -60,8 +61,8 @@ class _FeedPageState extends State<FeedPage> {
       appBar: AppBar(
         title: const Text('CloUGO', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700, letterSpacing: -0.8)),
         actions: [
-          IconButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePage())), icon: const Icon(Icons.add_box_outlined)),
-          IconButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MessagesPage())), icon: const Icon(Icons.favorite_border)),
+          IconButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsPage())), icon: const Icon(Icons.favorite_border)),
+          IconButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MessagesPage())), icon: const Icon(Icons.send_outlined)),
         ],
       ),
       body: RefreshIndicator(

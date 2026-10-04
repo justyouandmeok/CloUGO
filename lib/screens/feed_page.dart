@@ -3,6 +3,7 @@ import '../services/cache.dart';
 import '../services/sb.dart';
 import '../services/upload_queue.dart';
 import '../theme.dart';
+import 'hashtag_page.dart';
 import '../widgets/media_view.dart';
 import 'create_page.dart';
 import 'messages_page.dart';
@@ -152,10 +153,7 @@ class _PostTile extends StatelessWidget {
       ]),
       Padding(
         padding: const EdgeInsets.fromLTRB(14, 0, 14, 4),
-        child: Text.rich(TextSpan(children: [
-          TextSpan(text: '$handle ', style: const TextStyle(fontWeight: FontWeight.w700)),
-          TextSpan(text: caption.isEmpty ? 'Sin descripción' : caption),
-        ])),
+        child: CaptionText(handle: handle, caption: caption.isEmpty ? 'Sin descripción' : caption),
       ),
       const Padding(padding: EdgeInsets.fromLTRB(14, 0, 14, 14), child: Text('Ver comentarios', style: TextStyle(color: C.muted, fontSize: 13))),
       const Divider(height: 1, color: C.line),

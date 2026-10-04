@@ -58,7 +58,17 @@ class _ProfilePageState extends State<ProfilePage> {
         title: Row(children: [
           const Icon(Icons.lock_outline, size: 16),
           const SizedBox(width: 6),
-          Text(handle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          GestureDetector(
+            onLongPress: () {
+              final created = profile?['created_at'] ?? 'fecha no disponible';
+              showDialog(context: context, builder: (_) => AlertDialog(
+                title: Text('@$handle'),
+                content: Text('Cuenta desde: $created\nCambios de usuario: 0'),
+                actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cerrar'))],
+              ));
+            },
+            child: Text(handle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          ),
           const Icon(Icons.keyboard_arrow_down),
         ]),
         actions: [

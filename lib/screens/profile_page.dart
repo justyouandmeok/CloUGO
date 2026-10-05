@@ -4,6 +4,7 @@ import '../services/sb.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'reels_page.dart';
+import 'settings_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -74,10 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
         actions: [
           IconButton(onPressed: load, icon: const Icon(Icons.add_box_outlined)),
           IconButton(
-            onPressed: () async {
-              await Sb.c.auth.signOut();
-              if (context.mounted) Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const SizedBox()), (_) => false);
-            },
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsPage())),
             icon: const Icon(Icons.menu),
           ),
         ],
@@ -170,7 +168,7 @@ Widget _thumb(Map<String, dynamic> p) {
   final video = url != null && (url.contains('.mp4') || url.contains('.mov'));
   return Stack(fit: StackFit.expand, children: [
     if (url != null && !video) Image.network(url, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const ColoredBox(color: Color(0xFF161616)))
-    else const ColoredBox(color: Color(0xFF161616)),
+    else const ColoredBox(color: Color(0xFF1A1A1A), child: Center(child: Icon(Icons.image_outlined, color: Color(0xFF3A3A3A), size: 28))),
     if (video || p['kind'] == 'reel') const Positioned(right: 6, top: 6, child: Icon(Icons.play_arrow, color: Colors.white, size: 18)),
   ]);
 }

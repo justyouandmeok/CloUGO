@@ -49,6 +49,19 @@ class _MessagesPageState extends State<MessagesPage> {
     );
   }
 }
+
+class ChatPage extends StatefulWidget {
+  const ChatPage({super.key, required this.handle});
+  final String handle;
+  @override
+  State<ChatPage> createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
+  final t = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
     final msgs = s.chats[widget.handle] ?? [];
     return Scaffold(
       appBar: AppBar(title: Text('@${widget.handle}')),

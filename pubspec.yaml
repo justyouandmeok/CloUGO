@@ -1,7 +1,7 @@
 name: clougo
 description: CloUGO — red social.
 publish_to: "none"
-version: 0.16.0+20
+version: 0.16.1+21
 
 environment:
   sdk: ">=3.3.0 <4.0.0"

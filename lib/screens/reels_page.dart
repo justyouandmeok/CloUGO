@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/sb.dart';
 import '../theme.dart';
+import '../services/actions.dart';
+import 'feed_page.dart';
 import '../widgets/media_view.dart';
 
 class ReelsPage extends StatefulWidget {
@@ -58,11 +60,11 @@ class _Reel extends StatelessWidget {
       Positioned(
         right: 8, bottom: 88,
         child: Column(children: [
-          _act(Icons.favorite_border, '0'),
-          _act(Icons.chat_bubble_outline, '0'),
-          _act(Icons.send_outlined, ''),
-          _act(Icons.bookmark_border, ''),
-          _act(Icons.more_horiz, ''),
+          GestureDetector(onTap: () => ActionsStore.i.toggleLike('${item['id']}'), child: _act(ActionsStore.i.liked.contains('${item['id']}') ? Icons.favorite : Icons.favorite_border, ActionsStore.i.liked.contains('${item['id']}') ? '1' : '0')),
+          GestureDetector(onTap: () => showComments(context, '${item['id']}'), child: _act(Icons.chat_bubble_outline, '${(ActionsStore.i.comments['${item['id']}'] ?? []).length}')),
+          GestureDetector(onTap: () => shareText(context, '${item['caption'] ?? ''}'), child: _act(Icons.send_outlined, '')),
+          GestureDetector(onTap: () => ActionsStore.i.toggleSave('${item['id']}'), child: _act(ActionsStore.i.saved.contains('${item['id']}') ? Icons.bookmark : Icons.bookmark_border, '')),
+          GestureDetector(onTap: () => showReelMenu(context, item), child: _act(Icons.more_horiz, '')),
           const SizedBox(height: 10),
           const CircleAvatar(radius: 14, backgroundColor: Color(0xFF222222), child: Icon(Icons.music_note, size: 16)),
         ]),
@@ -94,4 +96,16 @@ class _Reel extends StatelessWidget {
       if (label.isNotEmpty) Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
     ]),
   );
+}
+
+
+void showReelMenu(BuildContext context, Map<String, dynamic> item) {
+  final mine = item['user_id'] == Sb.user?.id;
+  showModalBottomSheet(context: context, backgroundColor: const Color(0xFF111111), builder: (_) => SafeArea(child: Column(mainAxisSize: MainAxisSize.min, children: [
+    if (mine) ListTile(title: const Text('Eliminar'), onTap: () async {
+      await Sb.c.from('posts').delete().eq('id', item['id']);
+      if (context.mounted) Navigator.pop(context);
+    }),
+    ListTile(title: const Text('Copiar texto'), onTap: () { shareText(context, '${item['caption'] ?? ''}'); Navigator.pop(context); }),
+  ])));
 }

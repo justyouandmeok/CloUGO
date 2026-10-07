@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'screens/auth_page.dart';
 import 'screens/shell.dart';
 import 'state.dart';
+import 'services/actions.dart';
 import 'theme.dart';
 
 Future<void> main() async {

@@ -3,6 +3,7 @@ import '../services/cache.dart';
 import '../services/sb.dart';
 import '../services/upload_queue.dart';
 import '../theme.dart';
+import '../services/actions.dart';
 import 'hashtag_page.dart';
 import '../widgets/media_view.dart';
 import 'create_page.dart';
@@ -156,16 +157,16 @@ class _PostTile extends StatelessWidget {
       Padding(
         padding: const EdgeInsets.fromLTRB(6, 2, 6, 0),
         child: Row(children: [
-          IconButton(onPressed: () {}, visualDensity: VisualDensity.compact, icon: const Icon(Icons.favorite_border, size: 26)),
-          IconButton(onPressed: () {}, visualDensity: VisualDensity.compact, icon: const Icon(Icons.chat_bubble_outline, size: 24)),
-          IconButton(onPressed: () {}, visualDensity: VisualDensity.compact, icon: const Icon(Icons.send_outlined, size: 24)),
+          IconButton(onPressed: () => ActionsStore.i.toggleLike('$id'), visualDensity: VisualDensity.compact, icon: Icon(ActionsStore.i.liked.contains('$id') ? Icons.favorite : Icons.favorite_border, color: ActionsStore.i.liked.contains('$id') ? Colors.redAccent : Colors.white, size: 26)),
+          IconButton(onPressed: () => showComments(context, '$id'), visualDensity: VisualDensity.compact, icon: const Icon(Icons.chat_bubble_outline, size: 24)),
+          IconButton(onPressed: () => shareText(context, caption), visualDensity: VisualDensity.compact, icon: const Icon(Icons.send_outlined, size: 24)),
           const Spacer(),
-          IconButton(onPressed: () {}, visualDensity: VisualDensity.compact, icon: const Icon(Icons.bookmark_border, size: 26)),
+          IconButton(onPressed: () => ActionsStore.i.toggleSave('$id'), visualDensity: VisualDensity.compact, icon: Icon(ActionsStore.i.saved.contains('$id') ? Icons.bookmark : Icons.bookmark_border, size: 26)),
         ]),
       ),
       Padding(
         padding: const EdgeInsets.fromLTRB(14, 0, 14, 2),
-        child: Text('0 me gusta', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+        child: Text('${ActionsStore.i.liked.contains('$id') ? 1 : 0} me gusta', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
       ),
       Padding(
         padding: const EdgeInsets.fromLTRB(14, 2, 14, 2),
@@ -189,4 +190,29 @@ class _PendingTile extends StatelessWidget {
       trailing: failed ? TextButton(onPressed: () => uploadQueue.retry('${p['id']}'), child: const Text('Reintentar')) : const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
     );
   }
+}
+
+
+void shareText(BuildContext context, String text) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text.isEmpty ? 'Nada para compartir' : 'Listo para compartir: $text')));
+}
+
+void showComments(BuildContext context, String id) {
+  final box = TextEditingController();
+  showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: const Color(0xFF111111), builder: (ctx) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+      child: SizedBox(height: 360, child: Column(children: [
+        const SizedBox(height: 12),
+        const Text('Comentarios', style: TextStyle(fontWeight: FontWeight.w700)),
+        Expanded(child: ListView(children: [
+          for (final c in ActionsStore.i.comments[id] ?? []) ListTile(title: Text(c)),
+        ])),
+        Row(children: [
+          Expanded(child: TextField(controller: box, decoration: const InputDecoration(hintText: 'Agregar un comentario...'))),
+          IconButton(onPressed: () { if (box.text.trim().isEmpty) return; ActionsStore.i.addComment(id, box.text.trim()); Navigator.pop(ctx); }, icon: const Icon(Icons.send, color: C.blue)),
+        ]),
+      ])),
+    );
+  });
 }

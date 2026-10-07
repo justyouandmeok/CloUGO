@@ -88,7 +88,7 @@ class _ProfilePageState extends State<ProfilePage> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Row(children: [
               CircleAvatar(
-                radius: 42,
+                radius: 40,
                 backgroundColor: const Color(0xFF262626),
                 backgroundImage: avatar != null ? NetworkImage(avatar) : null,
                 child: avatar == null ? Text(name.isEmpty ? '?' : name[0].toUpperCase(), style: const TextStyle(fontSize: 28)) : null,
@@ -104,8 +104,8 @@ class _ProfilePageState extends State<ProfilePage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(name, style: const TextStyle(fontWeight: FontWeight.w700)),
-              if (bio.isNotEmpty) Text(bio),
+              Text(name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+              if (bio.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 2), child: Text(bio, style: const TextStyle(fontSize: 14))),
             ]),
           ),
           Padding(
@@ -139,7 +139,7 @@ class _ProfilePageState extends State<ProfilePage> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: shown.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 1.5, mainAxisSpacing: 1.5, childAspectRatio: 0.8),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 1.5, mainAxisSpacing: 1.5, childAspectRatio: 1),
               itemBuilder: (_, i) => GestureDetector(
                 onTap: shown[i]['kind'] == 'reel' ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => ReelsPage(startId: shown[i]['id']))) : null,
                 child: _thumb(shown[i]),

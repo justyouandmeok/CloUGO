@@ -71,13 +71,22 @@ class _FeedPageState extends State<FeedPage> {
         child: ListView(
           children: [
             SizedBox(
-              height: 108,
+              height: 96,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 children: [
-                  if (stories.isEmpty)
-                    const Padding(padding: EdgeInsets.all(12), child: Text('Sin historias', style: TextStyle(color: C.muted))),
+                  GestureDetector(
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePage())),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 7),
+                        child: Column(children: [
+                          CircleAvatar(radius: 30, backgroundColor: Color(0xFF1C1C1C), child: Icon(Icons.add, size: 22)),
+                          SizedBox(height: 4),
+                          SizedBox(width: 68, child: Text('Tu historia', maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: TextStyle(fontSize: 11))),
+                        ]),
+                      ),
+                    ),
                   for (final s in stories)
                     GestureDetector(
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => StoryPage(item: s))),
@@ -144,19 +153,25 @@ class _PostTile extends StatelessWidget {
               : MediaView(url: url, play: kind == 'reel'),
         ),
       ),
-      const Row(children: [
-        IconButton(onPressed: null, icon: Icon(Icons.favorite_border, color: Colors.white)),
-        IconButton(onPressed: null, icon: Icon(Icons.chat_bubble_outline, color: Colors.white)),
-        IconButton(onPressed: null, icon: Icon(Icons.send_outlined, color: Colors.white)),
-        Spacer(),
-        IconButton(onPressed: null, icon: Icon(Icons.bookmark_border, color: Colors.white)),
-      ]),
       Padding(
-        padding: const EdgeInsets.fromLTRB(14, 0, 14, 4),
-        child: CaptionText(handle: handle, caption: caption.isEmpty ? 'Sin descripción' : caption),
+        padding: const EdgeInsets.fromLTRB(6, 2, 6, 0),
+        child: Row(children: [
+          IconButton(onPressed: () {}, visualDensity: VisualDensity.compact, icon: const Icon(Icons.favorite_border, size: 26)),
+          IconButton(onPressed: () {}, visualDensity: VisualDensity.compact, icon: const Icon(Icons.chat_bubble_outline, size: 24)),
+          IconButton(onPressed: () {}, visualDensity: VisualDensity.compact, icon: const Icon(Icons.send_outlined, size: 24)),
+          const Spacer(),
+          IconButton(onPressed: () {}, visualDensity: VisualDensity.compact, icon: const Icon(Icons.bookmark_border, size: 26)),
+        ]),
       ),
-      const Padding(padding: EdgeInsets.fromLTRB(14, 0, 14, 14), child: Text('Ver comentarios', style: TextStyle(color: C.muted, fontSize: 13))),
-      const Divider(height: 1, color: C.line),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(14, 0, 14, 2),
+        child: Text('0 me gusta', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(14, 2, 14, 2),
+        child: CaptionText(handle: handle, caption: caption.isEmpty ? '' : caption),
+      ),
+      const Padding(padding: EdgeInsets.fromLTRB(14, 2, 14, 16), child: Text('Ver comentarios', style: TextStyle(color: C.muted, fontSize: 13))),
     ]);
   }
 }

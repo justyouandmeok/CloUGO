@@ -28,7 +28,7 @@ class _ShellState extends State<Shell> {
           : null,
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(border: Border(top: BorderSide(color: C.line, width: 0.4))),
-        padding: const EdgeInsets.only(top: 8, bottom: 6),
+        padding: const EdgeInsets.only(top: 10, bottom: 8),
         color: const Color(0xF0000000),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -38,8 +38,8 @@ class _ShellState extends State<Shell> {
                 onTap: () => setState(() => i = n),
                 child: SvgPicture.asset(
                   'assets/nav/${icons[n]}.svg',
-                  width: 28,
-                  height: 28,
+                  width: 26,
+                  height: 26,
                   colorFilter: ColorFilter.mode(i == n ? Colors.white : const Color(0xFF8E8E8E), BlendMode.srcIn),
                 ),
               ),
